@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Decorative Tape</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #tape {
+            width: 150px;
+            height: 30px;
+            background: linear-gradient(135deg, #ff5722, #c41e0e);
+            position: absolute;
+            cursor: grab;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="tape"></div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const tape = document.getElementById('tape');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        tape.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - tape.getBoundingClientRect().left;
+            offsetY = e.clientY - tape.getBoundingClientRect().top;
+            tape.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                tape.style.left = e.clientX - offsetX + 'px';
+                tape.style.top = e.clientY - offsetY + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                tape.style.cursor = 'grab';
+            }
+        });
+
+        // Draw the canvas under the tape
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(e) {
+            if (!isDragging) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(tape.getBoundingClientRect().left + tape.offsetWidth, tape.getBoundingClientRect().top + tape.offsetHeight / 2);
+                ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+                ctx.stroke();
+            }
+        }
+    </script>
+</body>
+</html>

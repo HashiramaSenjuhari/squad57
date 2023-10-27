@@ -1,44 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <title>Customizable Drawing Board</title>
+    <style>
+        #drawing-board-container {
+            position: relative;
+            width: 800px;
+            border: 2px solid #444;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            padding: 10px;
+        }
+
+        #drawing-board {
+            border: 1px solid #000;
+        }
+
+        #controls {
+            margin-top: 10px;
+        }
+
+        #color-picker {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #000;
+            display: inline-block;
+        }
+
+        #pen-size-slider {
+            width: 100px;
+        }
+
+        #eraser-size-slider {
+            width: 100px;
+        }
+
+        #pen-style-select,
+        #eraser-style-select {
+            width: 100px;
+        }
+    </style>
 </head>
 <body>
-  <style>
-.btn-gradient-2 {
-  background: linear-gradient(white, white) padding-box,
-              linear-gradient(to right, darkblue, darkorchid) border-box;
-  border-radius: 50em;
-  border: 4px solid transparent;
-}
+    <div id="drawing-board-container">
+        <canvas id="drawing-board" width="800" height="400"></canvas>
+        <div id="controls">
+            <input type="color" id="color-picker" value="#000000">
+            <label for="pen-size-slider">Pen Size:</label>
+            <input type="range" id="pen-size-slider" min="1" max="20" value="2">
+            <select id="pen-style-select">
+                <option value="round">Round</option>
+                <option value="square">Square</option>
+            </select>
+            <br>
+            <label for="eraser-size-slider">Eraser Size:</label>
+            <input type="range" id="eraser-size-slider" min="1" max="20" value="10">
+            <select id="eraser-style-select">
+                <option value="round">Round</option>
+                <option value="square">Square</option>
+            </select>
+            <br>
+            <button onclick="clearCanvas()">Clear</button>
+            <button onclick="saveDrawing()">Save</button>
+        </div>
+    </div>
 
-/* demo stuff */
-.parent {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 3rem;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
+    <script>
+        const canvas = document.getElementById('drawing-board');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        let penSize = 2;
+        let penStyle = 'round';
+        let eraserSize = 10;
+        let eraserStyle = 'round';
 
-.btn-gradient-1,
-.btn-gradient-2 {
-  position: relative;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1em;
-  color: darkblue;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-}
-  </style>
+        canvas.addEventListener('mousedown', () => {
+            drawing = true;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath();
+        });
+
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(e) {
+            if (!drawing) return;
+            ctx.lineWidth = penSize;
+            ctx.lineCap = penStyle;
+            ctx.strokeStyle = document.getElementById('color-picker').value;
+            ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveDrawing() {
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'my_drawing.png';
+            link.click();
+        }
+
+        document.getElementById('pen-size-slider').addEventListener('input', (e) => {
+            penSize = e.target.value;
+        });
+
+        document.getElementById('pen-style-select').addEventListener('change', (e) => {
+            penStyle = e.target.value;
+        });
+
+        document.getElementById('eraser-size-slider').addEventListener('input', (e) => {
+            eraserSize = e.target.value;
+        });
+
+        document.getElementById('eraser-style-select').addEventListener('change', (e) => {
+            eraserStyle = e.target.value;
+        });
+    </script>
 </body>
-<div class="parent">
-  <button class="btn-gradient-2">Button Two</button>
-</div>
 </html>
